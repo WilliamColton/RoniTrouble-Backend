@@ -21,6 +21,9 @@ public class UserInfoController {
         return userInfoService.getUserInfo(userId);
     }
 
+    @GetMapping
+    public Boolean isUserInfoByIdExisted(@UserId Integer userId){return userInfoService.isUserInfoByIdExisted(userId);}
+
     @PostMapping
     public void addOrUpdateUserInfo(@RequestBody UserInfo userInfo, @UserId Integer userId) {
         userInfoService.addOrUpdateUserInfo(userInfo, userId);
