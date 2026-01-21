@@ -13,7 +13,7 @@ public class UserInfo {
     private LocalDate createAt;
     private LocalDate birthday;
     private String location;
-    private Integer followingCount;
-    private Integer followersCount;
+    private Integer postCount;
+    private Integer viewCount;
     private Integer likesFavoritesCount;
 }
