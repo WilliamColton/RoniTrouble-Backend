@@ -21,7 +21,7 @@ public class UserInfoController {
         return userInfoService.getUserInfo(userId);
     }
 
-    @GetMapping
+    @GetMapping("/isExisted")
     public Boolean isUserInfoByIdExisted(@UserId Integer userId){return userInfoService.isUserInfoByIdExisted(userId);}
 
     @PostMapping
