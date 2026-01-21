@@ -25,10 +25,10 @@ public class GlobalRespHandler implements ResponseBodyAdvice<Object> {
         if (returnType.getMethod() == null) {
             return true;
         }
-        System.out.println("Advice sees returnType.getParameterType() = " + returnType.getParameterType());
-        System.out.println("Method raw return type                = " + returnType.getMethod().getReturnType());
-        System.out.println("Method generic return type            = " + returnType.getMethod().getGenericReturnType());
-        System.out.println("Selected converterType                = " + converterType);
+//        System.out.println("Advice sees returnType.getParameterType() = " + returnType.getParameterType());
+//        System.out.println("Method raw return type                = " + returnType.getMethod().getReturnType());
+//        System.out.println("Method generic return type            = " + returnType.getMethod().getGenericReturnType());
+//        System.out.println("Selected converterType                = " + converterType);
         Class<?> type = returnType.getMethod().getReturnType();
         if (SseEmitter.class.isAssignableFrom(type)) {
             return false;

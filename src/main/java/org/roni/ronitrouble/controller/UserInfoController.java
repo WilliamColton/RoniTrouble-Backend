@@ -16,8 +16,8 @@ import java.util.List;
 public class UserInfoController {
     private final UserInfoService userInfoService;
 
-    @GetMapping
-    public UserInfo getUserInfo(@UserId Integer userId) {
+    @GetMapping("/me")
+    public UserInfo getMyUserInfo(@UserId Integer userId) {
         return userInfoService.getUserInfo(userId);
     }
 
