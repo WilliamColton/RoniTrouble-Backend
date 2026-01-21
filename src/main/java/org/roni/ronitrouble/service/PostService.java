@@ -3,7 +3,6 @@ package org.roni.ronitrouble.service;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
 import org.roni.ronitrouble.dto.post.resp.PostAndCuisineInfo;
-import org.roni.ronitrouble.entity.Cuisine;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.enums.LostAndFoundType;
 import org.roni.ronitrouble.enums.PostType;

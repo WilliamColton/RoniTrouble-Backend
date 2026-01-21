@@ -1,7 +1,6 @@
 package org.roni.ronitrouble.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.roni.ronitrouble.entity.Cuisine;
 import org.roni.ronitrouble.service.CuisineService;
 import org.springframework.web.bind.annotation.*;
 

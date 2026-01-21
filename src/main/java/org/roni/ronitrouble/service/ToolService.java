@@ -5,7 +5,6 @@ import io.agentscope.core.tool.Tool;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.component.store.vectorStore.impl.CuisineStore;
 import org.roni.ronitrouble.dto.post.resp.PostAndCuisineInfo;
-import org.roni.ronitrouble.entity.Cuisine;
 import org.roni.ronitrouble.entity.UserCredential;
 import org.roni.ronitrouble.util.UserContextUtil;
 import org.springframework.stereotype.Service;

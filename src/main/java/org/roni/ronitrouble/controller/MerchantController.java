@@ -3,7 +3,6 @@ package org.roni.ronitrouble.controller;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.dto.merchant.resp.MerchantReviewWithUserInfo;
-import org.roni.ronitrouble.entity.Merchant;
 import org.roni.ronitrouble.service.MerchantService;
 import org.springframework.web.bind.annotation.*;
 

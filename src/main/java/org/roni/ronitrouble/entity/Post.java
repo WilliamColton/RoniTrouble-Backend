@@ -1,7 +1,6 @@
 package org.roni.ronitrouble.entity;
 
 import lombok.Data;
-import org.roni.ronitrouble.enums.LostAndFoundType;
 import org.roni.ronitrouble.enums.PostType;
 import org.springframework.data.annotation.Id;
 
@@ -22,11 +21,5 @@ public class Post {
     private PostType postType;
     private List<String> imageUrls;
     private LocalDateTime createdAt;
-
-    private Double score;
-    private Integer cuisineId;
-    private Integer merchantId;
-
-    private LostAndFoundType lostAndFoundType;
 
 }

@@ -3,8 +3,6 @@ package org.roni.ronitrouble.component.scheduling;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
-import org.roni.ronitrouble.entity.Cuisine;
-import org.roni.ronitrouble.entity.Merchant;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.service.CuisineService;
 import org.roni.ronitrouble.service.MerchantService;

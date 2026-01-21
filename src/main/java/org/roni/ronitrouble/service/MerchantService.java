@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.merchant.resp.MerchantReviewWithUserInfo;
-import org.roni.ronitrouble.entity.Merchant;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.entity.UserInfo;
 import org.roni.ronitrouble.enums.PostType;
@@ -63,7 +62,7 @@ public class MerchantService extends ServiceImpl<MerchantMapper, Merchant> {
 
     public List<MerchantReviewWithUserInfo> getMerchantReviewsWithUserInfo(Integer merchantId) {
         Query query = Query.query(Criteria.where("merchantId").is(merchantId)
-                .and("postType").is(PostType.REVIEW))
+                        .and("postType").is(PostType.REVIEW))
                 .with(Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Post> posts = mongoTemplate.find(query, Post.class);
 

@@ -10,7 +10,6 @@ import org.roni.ronitrouble.dto.userCredential.req.MerchantRegisterReq;
 import org.roni.ronitrouble.dto.userCredential.req.RegisterReq;
 import org.roni.ronitrouble.dto.userCredential.req.StudentRegisterReq;
 import org.roni.ronitrouble.dto.userCredential.resp.LoginResp;
-import org.roni.ronitrouble.entity.Merchant;
 import org.roni.ronitrouble.entity.UserCredential;
 import org.roni.ronitrouble.enums.Role;
 import org.roni.ronitrouble.exception.BusinessException;
