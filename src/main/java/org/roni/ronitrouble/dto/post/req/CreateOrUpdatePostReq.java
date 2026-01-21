@@ -1,7 +1,6 @@
 package org.roni.ronitrouble.dto.post.req;
 
 import lombok.Data;
-import org.roni.ronitrouble.enums.LostAndFoundType;
 import org.roni.ronitrouble.enums.PostType;
 
 import java.util.List;
@@ -13,10 +12,5 @@ public class CreateOrUpdatePostReq {
     private String postId;
     private String content;
     private List<String> imageUrls;
-
-    private Integer cuisineId;
-    private Integer merchantId;
-
-    private LostAndFoundType lostAndFoundType;
 
 }

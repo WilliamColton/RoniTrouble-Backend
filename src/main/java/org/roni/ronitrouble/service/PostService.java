@@ -2,10 +2,10 @@ package org.roni.ronitrouble.service;
 
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
-import org.roni.ronitrouble.dto.post.resp.PostAndCuisineInfo;
+import org.roni.ronitrouble.entity.Like;
 import org.roni.ronitrouble.entity.Post;
-import org.roni.ronitrouble.enums.LostAndFoundType;
-import org.roni.ronitrouble.enums.PostType;
+import org.roni.ronitrouble.enums.LikeType;
+import org.roni.ronitrouble.mapper.LikeMapper;
 import org.roni.ronitrouble.util.MapperUtil;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,10 +14,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,55 +27,17 @@ public class PostService {
 
     private final LocationService locationService;
     private final MongoTemplate mongoTemplate;
-    private final CuisineService cuisineService;
-
-    public List<PostAndCuisineInfo> getUserCuisineHistory(Integer userId) {
-        Query query = Query.query(Criteria.where("userId").is(userId)
-                        .and("postType").is(PostType.REVIEW)
-                        .and("cuisineId").ne(null))
-                .with(Sort.by(Sort.Direction.DESC, "score"));
-        List<Post> posts = mongoTemplate.find(query, Post.class);
-
-        List<Integer> cuisineIds = posts.stream()
-                .map(Post::getCuisineId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        List<Cuisine> cuisines = cuisineService.listByIds(cuisineIds);
-        Map<Integer, Cuisine> cuisineMap = cuisines.stream()
-                .collect(Collectors.toMap(Cuisine::getCuisineId, c -> c));
-
-        return posts.stream()
-                .map(post -> {
-                    Cuisine cuisine = cuisineMap.get(post.getCuisineId());
-                    if (cuisine == null) {
-                        return null;
-                    }
-                    PostAndCuisineInfo info = new PostAndCuisineInfo();
-                    info.setCuisineName(cuisine.getCuisineName());
-                    info.setCuisineIntroduce(cuisine.getIntroduce());
-                    info.setUserEvaluation(post.getContent());
-                    info.setUserScore(post.getScore());
-                    return info;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
+    private final LikeMapper likeMapper;
 
     public void like(String postId) {
         mongoTemplate.updateFirst(Query.query(Criteria
-                        .where("postId")
-                        .is(postId)),
+                .where("postId")
+                .is(postId)),
                 new Update().inc("likeCount", 1), Post.class);
     }
 
     public List<Post> getPostsByUserId(Integer userId) {
         Query query = Query.query(Criteria.where("userId").is(userId));
-        return mongoTemplate.find(query, Post.class);
-    }
-
-    public List<Post> getPostsByCuisineId(Integer cuisineId) {
-        Query query = Query.query(Criteria.where("cuisineId").is(cuisineId));
         return mongoTemplate.find(query, Post.class);
     }
 
@@ -109,10 +72,7 @@ public class PostService {
         Update update = new Update()
                 .set("content", createOrUpdatePostReq.getContent())
                 .set("postType", createOrUpdatePostReq.getPostType())
-                .set("cuisineId", createOrUpdatePostReq.getCuisineId())
-                .set("imageUrls", createOrUpdatePostReq.getImageUrls())
-                .set("merchantId", createOrUpdatePostReq.getMerchantId())
-                .set("lostAndFoundType", createOrUpdatePostReq.getLostAndFoundType());
+                .set("imageUrls", createOrUpdatePostReq.getImageUrls());
         mongoTemplate.updateFirst(query, update, Post.class);
     }
 
@@ -122,11 +82,8 @@ public class PostService {
                 .and("userId").is(userId)), Post.class);
     }
 
-    public List<Post> getPostsByPage(Integer from, Integer pageSize, LostAndFoundType lostAndFoundType) {
+    public List<Post> getPostsByPage(Integer from, Integer pageSize) {
         Query query = new Query().skip((long) from).limit(pageSize);
-        if (lostAndFoundType != null) {
-            query.addCriteria(Criteria.where("lostAndFoundType").is(lostAndFoundType));
-        }
         return mongoTemplate.find(query, Post.class);
     }
 
@@ -138,9 +95,6 @@ public class PostService {
         }
         if (req.getPostType() != null) {
             query.addCriteria(Criteria.where("postType").is(req.getPostType()));
-        }
-        if (req.getLostAndFoundType() != null && PostType.LOST_AND_FOUND.equals(req.getPostType())) {
-            query.addCriteria(Criteria.where("lostAndFoundType").is(req.getLostAndFoundType()));
         }
 
         query.with(Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -157,6 +111,34 @@ public class PostService {
                 new Update().inc("likeCount", -1),
                 Post.class);
 
+    }
+
+    public List<Post> getRecentPostsByUserId(Integer userId, Integer n) {
+        Query query = Query.query(Criteria.where("userId").is(userId))
+                .with(Sort.by(Sort.Direction.DESC, "createdAt"))
+                .limit(n);
+        return mongoTemplate.find(query, Post.class);
+    }
+
+    public List<Post> getRecentLikedPosts(Integer userId, Integer n) {
+        QueryWrapper<Like> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", userId)
+                .eq("likeType", LikeType.POST_LIKE)
+                .orderByDesc("likeId")
+                .last("LIMIT " + n);
+
+        List<Like> likes = likeMapper.selectList(queryWrapper);
+        List<String> postIds = likes.stream()
+                .map(Like::getPostId)
+                .collect(Collectors.toList());
+
+        if (postIds.isEmpty()) {
+            return List.of();
+        }
+
+        Query query = Query.query(Criteria.where("postId").in(postIds))
+                .with(Sort.by(Sort.Direction.DESC, "createdAt"));
+        return mongoTemplate.find(query, Post.class);
     }
 
 }

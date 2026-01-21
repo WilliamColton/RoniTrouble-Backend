@@ -13,7 +13,6 @@ public class UserAuthService extends ServiceImpl<UserCredentialMapper, UserCrede
     private final PasswordEncoder passwordEncoder;
     private final JwtCache jwtCache;
     private final UserInfoService userInfoService;
-    private final MerchantService merchantService;
 
 //    public void login(LoginReq loginReq) {
 //        Optional<UserAuth> userCredential = getOneOpt(new LambdaQueryWrapper<UserAuth>()

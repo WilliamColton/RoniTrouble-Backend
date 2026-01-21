@@ -2,9 +2,7 @@ package org.roni.ronitrouble.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.userCredential.req.LoginReq;
-import org.roni.ronitrouble.dto.userCredential.req.MerchantRegisterReq;
 import org.roni.ronitrouble.dto.userCredential.req.RegisterReq;
-import org.roni.ronitrouble.dto.userCredential.req.StudentRegisterReq;
 import org.roni.ronitrouble.dto.userCredential.resp.LoginResp;
 import org.roni.ronitrouble.service.UserCredentialService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,16 +25,6 @@ public class UserCredentialController {
     @PostMapping("/register")
     public void register(@RequestBody RegisterReq registerReq) {
         userCredentialService.register(registerReq);
-    }
-
-    @PostMapping("/register/student")
-    public void registerStudent(@RequestBody StudentRegisterReq registerReq) {
-        userCredentialService.registerStudent(registerReq);
-    }
-
-    @PostMapping("/register/merchant")
-    public void registerMerchant(@RequestBody MerchantRegisterReq registerReq) {
-        userCredentialService.registerMerchant(registerReq);
     }
 
 }

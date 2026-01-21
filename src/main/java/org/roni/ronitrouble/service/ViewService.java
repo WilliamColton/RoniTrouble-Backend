@@ -2,11 +2,13 @@ package org.roni.ronitrouble.service;
 
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
-import org.roni.ronitrouble.dto.vie.HomePageResp;
+import org.roni.ronitrouble.dto.view.HomePageResp;
 import org.roni.ronitrouble.entity.Comment;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.entity.UserInfo;
+import org.roni.ronitrouble.enums.PostType;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +37,16 @@ public class ViewService {
         virtualThreadExecutor.shutdown();
     }
 
-    public HomePageResp getHomePage(Integer from, Integer pageSize) {
+    public HomePageResp getHomePage(Integer from, Integer pageSize, PostType postType) {
         Query query = new Query()
                 .skip((long) from)
                 .limit(pageSize)
                 .with(org.springframework.data.domain.Sort.by(
                         org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+
+        if (postType != null) {
+            query.addCriteria(Criteria.where("postType").is(postType));
+        }
 
         List<Post> posts = mongoTemplate.find(query, Post.class);
 

@@ -22,7 +22,9 @@ public class UserInfoController {
     }
 
     @GetMapping("/isExisted")
-    public Boolean isUserInfoByIdExisted(@UserId Integer userId){return userInfoService.isUserInfoByIdExisted(userId);}
+    public Boolean isUserInfoByIdExisted(@UserId Integer userId) {
+        return userInfoService.isUserInfoByIdExisted(userId);
+    }
 
     @PostMapping
     public void addOrUpdateUserInfo(@RequestBody UserInfo userInfo, @UserId Integer userId) {
@@ -58,4 +60,5 @@ public class UserInfoController {
     public Integer getUserLikeCount(@UserId Integer userId) {
         return userInfoService.getUserLikeCount(userId);
     }
+
 }

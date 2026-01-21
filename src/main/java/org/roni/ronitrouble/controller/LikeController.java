@@ -22,5 +22,4 @@ public class LikeController {
         return likeService.getLikeCount(id, likeType);
     }
 
-
 }

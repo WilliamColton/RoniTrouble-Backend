@@ -1,4 +1,4 @@
-package org.roni.ronitrouble.dto.vie;
+package org.roni.ronitrouble.dto.view;
 
 import lombok.Data;
 import org.roni.ronitrouble.entity.Comment;
@@ -18,5 +18,5 @@ public class HomePageResp {
         private UserInfo userInfo;
         private List<Comment> comments;
     }
-    
+
 }

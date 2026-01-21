@@ -5,7 +5,6 @@ import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
 import org.roni.ronitrouble.dto.post.req.SearchPostReq;
 import org.roni.ronitrouble.entity.Post;
-import org.roni.ronitrouble.enums.LostAndFoundType;
 import org.roni.ronitrouble.service.PostService;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +37,8 @@ public class PostController {
     }
 
     @GetMapping("/page")
-    public List<Post> getPostsByPage(@RequestParam Integer from, @RequestParam Integer pageSize,
-            @RequestParam(required = false) LostAndFoundType lostAndFoundType) {
-        return postService.getPostsByPage(from, pageSize, lostAndFoundType);
+    public List<Post> getPostsByPage(@RequestParam Integer from, @RequestParam Integer pageSize) {
+        return postService.getPostsByPage(from, pageSize);
     }
 
     @PostMapping("/search")
