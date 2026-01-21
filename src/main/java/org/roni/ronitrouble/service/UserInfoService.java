@@ -23,6 +23,7 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
     private final PostService postService;
     private final CommentService commentService;
     private final LikeService likeService;
+    private final LocationService locationService;
 
     //获取个人资料
     public UserInfo getUserInfo(Integer userId) {
@@ -39,6 +40,11 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         }
         if (userInfo.getLikesFavoritesCount() == null) {
             userInfo.setLikesFavoritesCount(0);
+        }
+
+        String location = locationService.getLocationByUserId(userId);
+        if (!location.isBlank()) {
+            userInfo.setLocation(location);
         }
         return userInfo;
     }
@@ -172,5 +178,5 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
             updateUserStats(user.getUserId());
         }
     }
-    
+
 }

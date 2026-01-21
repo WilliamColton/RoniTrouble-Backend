@@ -17,8 +17,8 @@ public class UserInfo {
     private LocalDate createAt;
     private LocalDate birthday;
     private String location;
-    private Integer postCount;
     private Gender gender;
+    private Integer postCount;
     private Integer viewCount;
     private Integer likesFavoritesCount;
 }
