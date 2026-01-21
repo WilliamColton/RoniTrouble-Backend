@@ -101,6 +101,7 @@ public class PostService {
         post.setUserId(userId);
         post.setViewCount(0);
         post.setLocation(locationService.getLocationByUserId(userId));
+        post.setImageUrls(createOrUpdatePostReq.getImageUrls());
         mongoTemplate.save(post);
     }
 
@@ -110,6 +111,7 @@ public class PostService {
                 .set("content", createOrUpdatePostReq.getContent())
                 .set("postType", createOrUpdatePostReq.getPostType())
                 .set("cuisineId", createOrUpdatePostReq.getCuisineId())
+                .set("imageUrls", createOrUpdatePostReq.getImageUrls())
                 .set("merchantId", createOrUpdatePostReq.getMerchantId())
                 .set("lostAndFoundType", createOrUpdatePostReq.getLostAndFoundType());
         mongoTemplate.updateFirst(query, update, Post.class);

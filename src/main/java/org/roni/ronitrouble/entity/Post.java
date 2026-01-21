@@ -6,6 +6,7 @@ import org.roni.ronitrouble.enums.PostType;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class Post {
@@ -19,6 +20,7 @@ public class Post {
     private Integer likeCount;
     private Integer commentCount;
     private PostType postType;
+    private List<String> imageUrls;
     private LocalDateTime createdAt;
 
     private Double score;
