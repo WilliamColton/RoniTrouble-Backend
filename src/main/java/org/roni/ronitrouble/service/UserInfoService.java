@@ -43,7 +43,7 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         }
 
         String location = locationService.getLocationByUserId(userId);
-        if (!location.isBlank()) {
+        if (location != null || !location.isBlank()) {
             userInfo.setLocation(location);
         }
         return userInfo;
