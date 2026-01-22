@@ -1,10 +1,10 @@
 package org.roni.ronitrouble.component.resolver;
 
-import org.jspecify.annotations.NonNull;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.exception.BusinessException;
 import org.roni.ronitrouble.exception.exceptions.AuthError;
 import org.springframework.core.MethodParameter;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;

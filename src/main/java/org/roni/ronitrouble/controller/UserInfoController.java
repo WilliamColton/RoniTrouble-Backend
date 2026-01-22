@@ -16,6 +16,11 @@ import java.util.List;
 public class UserInfoController {
     private final UserInfoService userInfoService;
 
+    @GetMapping
+    public UserInfo getUserInfoById(@RequestParam Integer userId){
+        return userInfoService.getUserInfo(userId);
+    }
+
     @GetMapping("/me")
     public UserInfo getMyUserInfo(@UserId Integer userId) {
         return userInfoService.getUserInfo(userId);
