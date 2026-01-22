@@ -140,4 +140,18 @@ public class LikeService extends ServiceImpl<LikeMapper, Like> {
         return userInfoService.listByIds(userIds);
     }
 
+    public boolean isPostLiked(String postId, Integer userId) {
+        return count(new LambdaQueryWrapper<Like>()
+                .eq(Like::getPostId, postId)
+                .eq(Like::getUserId, userId)
+                .eq(Like::getLikeType, LikeType.POST_LIKE)) > 0;
+    }
+
+    public boolean isCommentLiked(Integer commentId, Integer userId) {
+        return count(new LambdaQueryWrapper<Like>()
+                .eq(Like::getCommentId, commentId)
+                .eq(Like::getUserId, userId)
+                .eq(Like::getLikeType, LikeType.COMMENT_LIKE)) > 0;
+    }
+
 }

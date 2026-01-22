@@ -1,6 +1,11 @@
 package org.roni.ronitrouble.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alibaba.dashscope.exception.NoApiKeyException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.roni.ronitrouble.component.cache.impl.PostCache;
+import org.roni.ronitrouble.component.store.vectorStore.impl.PostStore;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
 import org.roni.ronitrouble.entity.Like;
 import org.roni.ronitrouble.entity.Post;
@@ -15,12 +20,12 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -28,6 +33,9 @@ public class PostService {
     private final LocationService locationService;
     private final MongoTemplate mongoTemplate;
     private final LikeMapper likeMapper;
+    private final PostCache postCache;
+    private final EmbeddingService embeddingService;
+    private final PostStore postStore;
 
     public void like(String postId) {
         mongoTemplate.updateFirst(Query.query(Criteria
@@ -65,6 +73,16 @@ public class PostService {
         post.setLocation(locationService.getLocationByUserId(userId));
         post.setImageUrls(createOrUpdatePostReq.getImageUrls());
         mongoTemplate.save(post);
+
+        try {
+            List<Double> vector = embeddingService.buildDocumentEmbedding(post.getContent());
+            postStore.upsert(post.getPostId(), vector);
+            log.info("帖子向量化成功 postId={}", post.getPostId());
+        } catch (NoApiKeyException e) {
+            log.error("帖子向量化失败，API Key错误 postId={}", post.getPostId(), e);
+        } catch (Exception e) {
+            log.error("帖子向量化失败 postId={}", post.getPostId(), e);
+        }
     }
 
     private void updatePost(CreateOrUpdatePostReq createOrUpdatePostReq) {
@@ -80,6 +98,13 @@ public class PostService {
         mongoTemplate.remove(Query.query(Criteria
                 .where("postId").is(postId)
                 .and("userId").is(userId)), Post.class);
+
+        try {
+            postStore.deleteById(postId);
+            log.info("帖子向量删除成功 postId={}", postId);
+        } catch (Exception e) {
+            log.error("帖子向量删除失败 postId={}", postId, e);
+        }
     }
 
     public List<Post> getPostsByPage(Integer from, Integer pageSize) {
@@ -105,8 +130,7 @@ public class PostService {
         mongoTemplate.updateFirst(
                 Query.query(Criteria.where("postId").is(postId)),
                 new Update().inc("viewCount", 1),
-                Post.class
-        );
+                Post.class);
         return mongoTemplate.findById(postId, Post.class);
     }
 
@@ -126,13 +150,11 @@ public class PostService {
     }
 
     public List<Post> getRecentLikedPosts(Integer userId, Integer n) {
-        QueryWrapper<Like> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userId", userId)
-                .eq("likeType", LikeType.POST_LIKE)
-                .orderByDesc("likeId")
-                .last("LIMIT " + n);
-
-        List<Like> likes = likeMapper.selectList(queryWrapper);
+        List<Like> likes = likeMapper.selectList(new LambdaQueryWrapper<Like>()
+                .eq(Like::getLikeType, LikeType.POST_LIKE)
+                .eq(Like::getUserId, userId)
+                .orderByDesc(Like::getLikeId)
+                .last("LIMIT " + n));
         List<String> postIds = likes.stream()
                 .map(Like::getPostId)
                 .collect(Collectors.toList());
@@ -143,6 +165,15 @@ public class PostService {
 
         Query query = Query.query(Criteria.where("postId").in(postIds))
                 .with(Sort.by(Sort.Direction.DESC, "createdAt"));
+        return mongoTemplate.find(query, Post.class);
+    }
+
+    public List<Post> getRecommendPosts(Integer userId) throws JsonProcessingException {
+        List<String> postIds = postCache.getRecommendPosts(userId);
+        if (postIds.isEmpty()) {
+            return List.of();
+        }
+        Query query = Query.query(Criteria.where("postId").in(postIds));
         return mongoTemplate.find(query, Post.class);
     }
 

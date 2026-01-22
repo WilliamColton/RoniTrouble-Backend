@@ -1,5 +1,6 @@
 package org.roni.ronitrouble.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.entity.UserInfo;
@@ -28,6 +29,17 @@ public class LikeController {
     @GetMapping("/users")
     public List<UserInfo> getPostLikers(@RequestParam("postId") String postId) {
         return likeService.getPostLikers(postId);
+    }
+
+    @Operation(summary = "获取点赞状态")
+    @GetMapping("/status")
+    public Boolean getLikeStatus(@RequestParam String id, @RequestParam LikeType likeType, @UserId Integer userId) {
+        if (LikeType.POST_LIKE.equals(likeType)) {
+            return likeService.isPostLiked(id, userId);
+        } else if (LikeType.COMMENT_LIKE.equals(likeType)) {
+            return likeService.isCommentLiked(Integer.valueOf(id), userId);
+        }
+        return false;
     }
 
 }

@@ -1,5 +1,6 @@
 package org.roni.ronitrouble.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
@@ -44,6 +45,11 @@ public class PostController {
     @PostMapping("/search")
     public List<Post> searchPosts(@RequestBody SearchPostReq req) {
         return postService.searchPosts(req);
+    }
+
+    @GetMapping("/recommend")
+    public List<Post> getRecommendPosts(@UserId Integer userId) throws JsonProcessingException {
+        return postService.getRecommendPosts(userId);
     }
 
 }
