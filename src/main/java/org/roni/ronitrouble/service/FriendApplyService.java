@@ -15,6 +15,7 @@ import org.roni.ronitrouble.enums.FriendApplyStatus;
 import org.roni.ronitrouble.enums.NotificationType;
 import org.roni.ronitrouble.enums.ReadStatus;
 import org.roni.ronitrouble.exception.BusinessException;
+import org.roni.ronitrouble.exception.exceptions.DataError;
 import org.roni.ronitrouble.exception.exceptions.OtherError;
 import org.roni.ronitrouble.mapper.FriendApplyMapper;
 import org.roni.ronitrouble.util.MapperUtil;
@@ -64,10 +65,10 @@ public class FriendApplyService extends ServiceImpl<FriendApplyMapper, FriendApp
     public void changeFriendApply(ChangeFriendApplyReq changeFriendApplyReq, Integer userId) {
         FriendApply friendApply = getOneOpt(new LambdaQueryWrapper<FriendApply>()
                 .eq(FriendApply::getId, changeFriendApplyReq.getId()))
-                .orElseThrow(() -> new BusinessException(OtherError.NETWORK_ERROR));
+                .orElseThrow(() -> new BusinessException(DataError.THE_DATA_DOES_NOT_EXIST_ERROR));
 
         if (!friendApply.getReceiverId().equals(userId)) {
-            throw new BusinessException(OtherError.NETWORK_ERROR);
+            throw new BusinessException(DataError.LOGICAL_ERROR);
         }
 
         update(new LambdaUpdateWrapper<FriendApply>()
@@ -76,7 +77,7 @@ public class FriendApplyService extends ServiceImpl<FriendApplyMapper, FriendApp
 
         if (changeFriendApplyReq.getFriendApplyStatus() == FriendApplyStatus.PASSED) {
             if (privateChatService.existsPrivateConversation(userId, friendApply.getSenderId())) {
-                throw new BusinessException(OtherError.NETWORK_ERROR);
+                throw new BusinessException(DataError.THE_DATA_ALREADY_EXISTS_ERROR);
             }
             conversationService.createPrivateConversation(friendApply.getSenderId(), userId);
         }

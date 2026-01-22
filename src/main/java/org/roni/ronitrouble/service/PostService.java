@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.roni.ronitrouble.component.cache.impl.PostCache;
 import org.roni.ronitrouble.component.store.vectorStore.impl.PostStore;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
+import org.roni.ronitrouble.dto.post.resp.PostWithAuthorInfo;
 import org.roni.ronitrouble.entity.Like;
 import org.roni.ronitrouble.entity.Post;
+import org.roni.ronitrouble.entity.UserInfo;
 import org.roni.ronitrouble.enums.LikeType;
 import org.roni.ronitrouble.mapper.LikeMapper;
 import org.roni.ronitrouble.util.MapperUtil;
@@ -24,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -183,13 +186,30 @@ public class PostService {
         return mongoTemplate.find(query, Post.class);
     }
 
-    public List<Post> getRecommendPosts(Integer userId) throws JsonProcessingException {
+    public List<PostWithAuthorInfo> getRecommendPostsWithAuthorInfo(Integer userId) throws JsonProcessingException {
         List<String> postIds = postCache.getRecommendPosts(userId);
         if (postIds.isEmpty()) {
             return List.of();
         }
+
         Query query = Query.query(Criteria.where("postId").in(postIds));
-        return mongoTemplate.find(query, Post.class);
+        List<Post> posts = mongoTemplate.find(query, Post.class);
+
+        if (posts.isEmpty()) {
+            return List.of();
+        }
+
+        List<Integer> authorIds = posts.stream()
+                .map(Post::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Integer, UserInfo> userInfoMap = userInfoService.listByIds(authorIds).stream()
+                .collect(Collectors.toMap(UserInfo::getUserId, userInfo -> userInfo));
+
+        return posts.stream()
+                .map(post -> PostWithAuthorInfo.of(post, userInfoMap.get(post.getUserId())))
+                .collect(Collectors.toList());
     }
 
 }

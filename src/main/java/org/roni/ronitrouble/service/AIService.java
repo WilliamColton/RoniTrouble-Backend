@@ -49,7 +49,7 @@ public class AIService {
 
     public Flux<String> chat(String input, Integer userId) {
         Session session = new JsonSession();
-        ReActAgent agent = agentFactory.buildReActAgent("你的名字是肉包包，你是一个 AI 聊天助手！");
+        ReActAgent agent = agentFactory.buildReActAgent("你的名字是肉包包，你是一个 AI 聊天助手！请不要使用markdown语法！");
 
         agent.loadIfExists(session, String.valueOf(userId));
         Msg msg = Msg.builder()
@@ -63,7 +63,8 @@ public class AIService {
                 .map(Msg::getTextContent)
                 .buffer(Duration.ofMillis(250))
                 .map(strings -> String.join("", strings))
-                .doFinally((_) -> agent.saveTo(session, String.valueOf(userId)));
+                .doFinally((_) -> agent.saveTo(session, String.valueOf(userId)))
+                .concatWithValues("[DONE]");
     }
 
 }

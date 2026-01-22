@@ -1,10 +1,10 @@
 package org.roni.ronitrouble.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.dto.post.req.CreateOrUpdatePostReq;
 import org.roni.ronitrouble.dto.post.req.SearchPostReq;
+import org.roni.ronitrouble.dto.post.resp.PostWithAuthorInfo;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.service.PostService;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +47,9 @@ public class PostController {
         return postService.searchPosts(req);
     }
 
-    @GetMapping("/recommend")
-    public List<Post> getRecommendPosts(@UserId Integer userId) throws JsonProcessingException {
-        return postService.getRecommendPosts(userId);
+    @GetMapping("/recommend-with-author")
+    public List<PostWithAuthorInfo> getRecommendPostsWithAuthor(@UserId Integer userId) throws Exception {
+        return postService.getRecommendPostsWithAuthorInfo(userId);
     }
 
 }
