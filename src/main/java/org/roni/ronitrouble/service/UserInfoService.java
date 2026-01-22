@@ -140,43 +140,4 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         return userInfo == null ? 0 : userInfo.getLikesFavoritesCount();
     }
 
-    public void updateUserStats(Integer userId) {
-        List<Post> posts = postService.getPostsByUserId(userId);
-        int postCount = posts == null ? 0 : posts.size();
-        int viewCount = 0;
-        int likeCount = 0;
-        if (posts != null) {
-            for (Post post : posts) {
-                if (post == null) {
-                    continue;
-                }
-                if (post.getViewCount() != null) {
-                    viewCount += post.getViewCount();
-                }
-                if (post.getLikeCount() != null) {
-                    likeCount += post.getLikeCount();
-                }
-            }
-        }
-        update(new LambdaUpdateWrapper<UserInfo>()
-                .eq(UserInfo::getUserId, userId)
-                .set(UserInfo::getPostCount, postCount)
-                .set(UserInfo::getViewCount, viewCount)
-                .set(UserInfo::getLikesFavoritesCount, likeCount));
-    }
-
-    @Scheduled(cron = "0 */5 * * * *")
-    public void refreshAllUserStats() {
-        List<UserInfo> users = list();
-        if (users == null || users.isEmpty()) {
-            return;
-        }
-        for (UserInfo user : users) {
-            if (user == null || user.getUserId() == null) {
-                continue;
-            }
-            updateUserStats(user.getUserId());
-        }
-    }
-
 }
