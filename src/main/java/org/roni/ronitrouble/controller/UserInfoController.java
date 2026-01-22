@@ -65,11 +65,6 @@ public class UserInfoController {
         return userInfoService.getUserPostCount(userId);
     }
 
-    @GetMapping("/viewCount")
-    public Integer getUserViewCount(@UserId Integer userId) {
-        return userInfoService.getUserViewCount(userId);
-    }
-
     @GetMapping("/likeCount")
     public Integer getUserLikeCount(@UserId Integer userId) {
         return userInfoService.getUserLikeCount(userId);

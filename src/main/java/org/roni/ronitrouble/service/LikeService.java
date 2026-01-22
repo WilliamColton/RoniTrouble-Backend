@@ -96,20 +96,28 @@ public class LikeService extends ServiceImpl<LikeMapper, Like> {
             postService.like(postId);
 
             Post post = postService.getPostById(postId);
-            if (post != null && !post.getUserId().equals(userId)) {
-                NotificationHistory notification = NotificationHistory.builder()
-                        .userId(post.getUserId())
-                        .opponentId(userId)
-                        .notificationType(NotificationType.Like)
-                        .postId(postId)
-                        .createAt(LocalDateTime.now())
-                        .isRead(false)
-                        .build();
-                notificationHistoryService.saveNotification(notification);
+            if (post != null) {
+                userInfoService.incrementBeLikedCount(post.getUserId());
+                if (!post.getUserId().equals(userId)) {
+                    NotificationHistory notification = NotificationHistory.builder()
+                            .userId(post.getUserId())
+                            .opponentId(userId)
+                            .notificationType(NotificationType.Like)
+                            .postId(postId)
+                            .createAt(LocalDateTime.now())
+                            .isRead(false)
+                            .build();
+                    notificationHistoryService.saveNotification(notification);
+                }
             }
         } else {
             remove(just);
             postService.dislike(postId);
+
+            Post post = postService.getPostById(postId);
+            if (post != null) {
+                userInfoService.decrementBeLikedCount(post.getUserId());
+            }
         }
     }
 

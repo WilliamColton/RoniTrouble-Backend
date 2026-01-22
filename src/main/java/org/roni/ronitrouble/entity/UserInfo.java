@@ -19,6 +19,6 @@ public class UserInfo {
     private String location;
     private Gender gender;
     private Integer postCount;
-    private Integer viewCount;
+    private Integer beLikedCount;
     private Integer likesFavoritesCount;
 }

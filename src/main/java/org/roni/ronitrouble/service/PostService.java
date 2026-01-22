@@ -12,6 +12,7 @@ import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.enums.LikeType;
 import org.roni.ronitrouble.mapper.LikeMapper;
 import org.roni.ronitrouble.util.MapperUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PostService {
 
     private final LocationService locationService;
@@ -36,6 +36,20 @@ public class PostService {
     private final PostCache postCache;
     private final EmbeddingService embeddingService;
     private final PostStore postStore;
+    private final UserInfoService userInfoService;
+
+    public PostService(LocationService locationService, MongoTemplate mongoTemplate,
+            LikeMapper likeMapper, PostCache postCache,
+            EmbeddingService embeddingService, PostStore postStore,
+            @Lazy UserInfoService userInfoService) {
+        this.locationService = locationService;
+        this.mongoTemplate = mongoTemplate;
+        this.likeMapper = likeMapper;
+        this.postCache = postCache;
+        this.embeddingService = embeddingService;
+        this.postStore = postStore;
+        this.userInfoService = userInfoService;
+    }
 
     public void like(String postId) {
         mongoTemplate.updateFirst(Query.query(Criteria
@@ -73,6 +87,7 @@ public class PostService {
         post.setLocation(locationService.getLocationByUserId(userId));
         post.setImageUrls(createOrUpdatePostReq.getImageUrls());
         mongoTemplate.save(post);
+        userInfoService.incrementPostCount(userId);
 
         try {
             List<Double> vector = embeddingService.buildDocumentEmbedding(post.getContent());

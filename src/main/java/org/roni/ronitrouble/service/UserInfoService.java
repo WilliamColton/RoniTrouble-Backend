@@ -35,8 +35,8 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         if (userInfo.getPostCount() == null) {
             userInfo.setPostCount(0);
         }
-        if (userInfo.getViewCount() == null) {
-            userInfo.setViewCount(0);
+        if (userInfo.getBeLikedCount() == null) {
+            userInfo.setBeLikedCount(0);
         }
         if (userInfo.getLikesFavoritesCount() == null) {
             userInfo.setLikesFavoritesCount(0);
@@ -68,15 +68,15 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
                 .eq(UserInfo::getUserId, userId));
         if (existing != null) {
             userInfo.setPostCount(existing.getPostCount());
-            userInfo.setViewCount(existing.getViewCount());
+            userInfo.setBeLikedCount(existing.getBeLikedCount());
             userInfo.setLikesFavoritesCount(existing.getLikesFavoritesCount());
             updateById(userInfo);
         } else {
             if (userInfo.getPostCount() == null) {
                 userInfo.setPostCount(0);
             }
-            if (userInfo.getViewCount() == null) {
-                userInfo.setViewCount(0);
+            if (userInfo.getBeLikedCount() == null) {
+                userInfo.setBeLikedCount(0);
             }
             if (userInfo.getLikesFavoritesCount() == null) {
                 userInfo.setLikesFavoritesCount(0);
@@ -128,16 +128,29 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         return userInfo == null ? 0 : userInfo.getPostCount();
     }
 
-    //统计用户总浏览量
-    public Integer getUserViewCount(Integer userId) {
-        UserInfo userInfo = getUserInfo(userId);
-        return userInfo == null ? 0 : userInfo.getViewCount();
-    }
-
     //统计用户总点赞量
     public Integer getUserLikeCount(Integer userId) {
         UserInfo userInfo = getUserInfo(userId);
         return userInfo == null ? 0 : userInfo.getLikesFavoritesCount();
+    }
+
+    public void incrementPostCount(Integer userId) {
+        update(new LambdaUpdateWrapper<UserInfo>()
+                .eq(UserInfo::getUserId, userId)
+                .setSql("post_count = post_count + 1"));
+    }
+
+    public void incrementBeLikedCount(Integer userId) {
+        update(new LambdaUpdateWrapper<UserInfo>()
+                .eq(UserInfo::getUserId, userId)
+                .setSql("be_liked_count = be_liked_count + 1"));
+    }
+
+    public void decrementBeLikedCount(Integer userId) {
+        update(new LambdaUpdateWrapper<UserInfo>()
+                .eq(UserInfo::getUserId, userId)
+                .gt(UserInfo::getBeLikedCount, 0)
+                .setSql("be_liked_count = be_liked_count - 1"));
     }
 
 }
