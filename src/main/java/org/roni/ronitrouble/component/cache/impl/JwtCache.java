@@ -25,6 +25,10 @@ public class JwtCache extends StringCache {
         return objectMapper.readValue(value, JwtUtil.UserCredentialInfo.class);
     }
 
+    public void removeUserCredentialInfo(String token) {
+        removeValue(token);
+    }
+
     public void setUserCredentialInfo(String token, JwtUtil.UserCredentialInfo userCredentialInfo, long timeout, TimeUnit unit) throws JsonProcessingException {
         setValue(token, objectMapper.writeValueAsString(userCredentialInfo), timeout, unit);
     }

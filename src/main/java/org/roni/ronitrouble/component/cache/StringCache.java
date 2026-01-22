@@ -15,6 +15,10 @@ public abstract class StringCache {
         return redisTemplate.opsForValue().get(cachePrefix + key);
     }
 
+    protected void removeValue(String key) {
+        redisTemplate.delete(cachePrefix + key);
+    }
+
     protected void setValue(String key, String value) {
         redisTemplate.opsForValue().set(cachePrefix + key, value);
     }
