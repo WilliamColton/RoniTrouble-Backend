@@ -3,13 +3,16 @@ package org.roni.ronitrouble.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.friendApply.req.ChangeFriendApplyReq;
 import org.roni.ronitrouble.dto.friendApply.req.ChangeReadStatusReq;
 import org.roni.ronitrouble.dto.friendApply.req.CreateFriendApplyReq;
 import org.roni.ronitrouble.dto.friendApply.resp.ApplyAndProfileInfo;
 import org.roni.ronitrouble.entity.FriendApply;
+import org.roni.ronitrouble.entity.NotificationHistory;
 import org.roni.ronitrouble.entity.UserInfo;
 import org.roni.ronitrouble.enums.FriendApplyStatus;
+import org.roni.ronitrouble.enums.NotificationType;
 import org.roni.ronitrouble.enums.ReadStatus;
 import org.roni.ronitrouble.exception.BusinessException;
 import org.roni.ronitrouble.exception.exceptions.OtherError;
@@ -18,6 +21,7 @@ import org.roni.ronitrouble.util.MapperUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,12 +30,15 @@ public class FriendApplyService extends ServiceImpl<FriendApplyMapper, FriendApp
     private final UserInfoService userInfoService;
     private final ConversationService conversationService;
     private final PrivateChatService privateChatService;
+    private final NotificationHistoryService notificationHistoryService;
 
     public FriendApplyService(UserInfoService userInfoService, ConversationService conversationService,
-                              PrivateChatService privateChatService) {
+            PrivateChatService privateChatService,
+            NotificationHistoryService notificationHistoryService) {
         this.userInfoService = userInfoService;
         this.conversationService = conversationService;
         this.privateChatService = privateChatService;
+        this.notificationHistoryService = notificationHistoryService;
     }
 
     public void createFriendApply(CreateFriendApplyReq createFriendApplyReq, Integer userId) {
@@ -40,6 +47,17 @@ public class FriendApplyService extends ServiceImpl<FriendApplyMapper, FriendApp
         friendApply.setReadStatus(ReadStatus.NOT_READ);
         friendApply.setSenderId(userId);
         save(friendApply);
+
+        NotificationHistory notification = NotificationHistory.builder()
+                .userId(createFriendApplyReq.getReceiverId())
+                .opponentId(userId)
+                .notificationType(NotificationType.FriendApply)
+                .content(createFriendApplyReq.getMsg())
+                .friendApplyId(friendApply.getId())
+                .createAt(LocalDateTime.now())
+                .isRead(false)
+                .build();
+        notificationHistoryService.saveNotification(notification);
     }
 
     @Transactional
@@ -86,6 +104,13 @@ public class FriendApplyService extends ServiceImpl<FriendApplyMapper, FriendApp
         update(new LambdaUpdateWrapper<FriendApply>()
                 .eq(FriendApply::getId, changeReadStatusReq.getId())
                 .set(FriendApply::getReadStatus, changeReadStatusReq.getReadStatus()));
+    }
+
+    public boolean hasPendingFriendApply(Integer senderId, Integer receiverId) {
+        FriendApply friendApply = getOne(new LambdaQueryWrapper<FriendApply>()
+                .eq(FriendApply::getSenderId, senderId)
+                .eq(FriendApply::getReceiverId, receiverId));
+        return friendApply != null && friendApply.getFriendApplyStatus() == FriendApplyStatus.NOT_READ;
     }
 
 }

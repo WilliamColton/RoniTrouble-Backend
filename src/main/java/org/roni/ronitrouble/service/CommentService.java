@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.dto.comment.req.CreateCommentReq;
 import org.roni.ronitrouble.entity.Comment;
+import org.roni.ronitrouble.entity.NotificationHistory;
+import org.roni.ronitrouble.enums.NotificationType;
 import org.roni.ronitrouble.mapper.CommentMapper;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ public class CommentService extends ServiceImpl<CommentMapper, Comment> {
 
     private final LocationService locationService;
     private final MongoTemplate mongoTemplate;
+    private final NotificationHistoryService notificationHistoryService;
+    private final PostService postService;
 
     public void like(Integer commentId) {
         update(new LambdaUpdateWrapper<Comment>()
@@ -42,6 +46,21 @@ public class CommentService extends ServiceImpl<CommentMapper, Comment> {
         comment.setLikeCount(0);
         comment.setLocation(locationService.getLocationByUserId(userId));
         save(comment);
+
+        var post = postService.getPostById(createCommentReq.getPostId());
+        if (post != null && !post.getUserId().equals(userId)) {
+            NotificationHistory notification = NotificationHistory.builder()
+                    .userId(post.getUserId())
+                    .opponentId(userId)
+                    .notificationType(NotificationType.Comment)
+                    .content(createCommentReq.getContent())
+                    .postId(createCommentReq.getPostId())
+                    .commentId(comment.getCommentId())
+                    .createAt(LocalDateTime.now())
+                    .isRead(false)
+                    .build();
+            notificationHistoryService.saveNotification(notification);
+        }
     }
 
     public List<Comment> getComments(String postId) {
@@ -58,6 +77,5 @@ public class CommentService extends ServiceImpl<CommentMapper, Comment> {
     public Comment getCommentById(Integer id) {
         return getById(id);
     }
-
 
 }

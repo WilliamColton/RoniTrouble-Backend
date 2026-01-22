@@ -102,6 +102,11 @@ public class PostService {
     }
 
     public Post getPostById(String postId) {
+        mongoTemplate.updateFirst(
+                Query.query(Criteria.where("postId").is(postId)),
+                new Update().inc("viewCount", 1),
+                Post.class
+        );
         return mongoTemplate.findById(postId, Post.class);
     }
 

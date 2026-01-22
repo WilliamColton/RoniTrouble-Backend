@@ -17,7 +17,7 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/post")
-    public Post getPostById(String postId) {
+    public Post getPostById(@RequestParam String postId) {
         return postService.getPostById(postId);
     }
 

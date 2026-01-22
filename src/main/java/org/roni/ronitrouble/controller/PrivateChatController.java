@@ -5,6 +5,7 @@ import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.service.PrivateChatService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,6 +20,11 @@ public class PrivateChatController {
     @GetMapping
     public List<PrivateChatService.ConversationAndProfileInfo> getProfilesOfPrivateChat(@UserId Integer userId) {
         return privateChatService.getConversationAndProfileInfosOfPrivateChat(userId);
+    }
+
+    @GetMapping("/isFriend")
+    public Boolean isFriend(@RequestParam Integer userId1, @RequestParam Integer userId2) {
+        return privateChatService.existsPrivateConversation(userId1, userId2);
     }
 
 }

@@ -1,5 +1,6 @@
 package org.roni.ronitrouble.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.roni.ronitrouble.annotation.UserId;
 import org.roni.ronitrouble.entity.Comment;
@@ -16,11 +17,13 @@ import java.util.List;
 public class UserInfoController {
     private final UserInfoService userInfoService;
 
+    @Operation(summary = "通过用户 id 查找信息")
     @GetMapping
-    public UserInfo getUserInfoById(@RequestParam Integer userId){
+    public UserInfo getUserInfoById(@RequestParam Integer userId) {
         return userInfoService.getUserInfo(userId);
     }
 
+    @Operation(summary = "获取当前登录用户的信息")
     @GetMapping("/me")
     public UserInfo getMyUserInfo(@UserId Integer userId) {
         return userInfoService.getUserInfo(userId);
@@ -29,6 +32,12 @@ public class UserInfoController {
     @GetMapping("/isExisted")
     public Boolean isUserInfoByIdExisted(@UserId Integer userId) {
         return userInfoService.isUserInfoByIdExisted(userId);
+    }
+
+    @Operation(description = "判断传入的用户 id 是否等于当前登录的用户 id")
+    @GetMapping("/isCurrentUser")
+    public Boolean isCurrentUser(@RequestParam Integer userId, @UserId Integer currentUserId) {
+        return userId.equals(currentUserId);
     }
 
     @PostMapping

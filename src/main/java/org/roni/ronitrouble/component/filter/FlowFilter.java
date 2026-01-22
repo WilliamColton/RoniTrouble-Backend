@@ -47,7 +47,7 @@ public class FlowFilter extends OncePerRequestFilter {
         long currentTimeStamp = System.currentTimeMillis();
         long timestampBeforeATimeWindow = currentTimeStamp - windowSize * 1000;
         String userId = request.getUserPrincipal() == null ? "" : request.getUserPrincipal().getName();
-        if (Boolean.TRUE.equals(isAllowed(userId, currentTimeStamp, timestampBeforeATimeWindow))) {
+        if (isAllowed(userId, currentTimeStamp, timestampBeforeATimeWindow)) {
             filterChain.doFilter(request, response);
         } else {
             throw new RuntimeException("系统当前流量过大，请稍后再试");

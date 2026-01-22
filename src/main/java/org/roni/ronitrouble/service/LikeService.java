@@ -3,17 +3,36 @@ package org.roni.ronitrouble.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.roni.ronitrouble.entity.Comment;
 import org.roni.ronitrouble.entity.Like;
+import org.roni.ronitrouble.entity.NotificationHistory;
+import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.enums.LikeType;
+import org.roni.ronitrouble.enums.NotificationType;
 import org.roni.ronitrouble.mapper.LikeMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 public class LikeService extends ServiceImpl<LikeMapper, Like> {
     private final PostService postService;
     private final CommentService commentService;
+    private final UserInfoService userInfoService;
+    private final NotificationHistoryService notificationHistoryService;
+
+    public LikeService(PostService postService, CommentService commentService,
+            @Lazy UserInfoService userInfoService,
+            NotificationHistoryService notificationHistoryService) {
+        this.postService = postService;
+        this.commentService = commentService;
+        this.userInfoService = userInfoService;
+        this.notificationHistoryService = notificationHistoryService;
+    }
 
     public void changeLike(String id, LikeType likeType, Integer userId) {
         if (LikeType.COMMENT_LIKE.equals(likeType)) {
@@ -40,6 +59,20 @@ public class LikeService extends ServiceImpl<LikeMapper, Like> {
             like.setLikeType(LikeType.COMMENT_LIKE);
             save(like);
             commentService.like(commentId);
+
+            Comment comment = commentService.getCommentById(commentId);
+            if (comment != null && !comment.getUserId().equals(userId)) {
+                NotificationHistory notification = NotificationHistory.builder()
+                        .userId(comment.getUserId())
+                        .opponentId(userId)
+                        .notificationType(NotificationType.Like)
+                        .postId(comment.getPostId())
+                        .commentId(commentId)
+                        .createAt(LocalDateTime.now())
+                        .isRead(false)
+                        .build();
+                notificationHistoryService.saveNotification(notification);
+            }
         } else {
             remove(query);
             commentService.dislike(commentId);
@@ -61,6 +94,19 @@ public class LikeService extends ServiceImpl<LikeMapper, Like> {
             like.setLikeType(LikeType.POST_LIKE);
             save(like);
             postService.like(postId);
+
+            Post post = postService.getPostById(postId);
+            if (post != null && !post.getUserId().equals(userId)) {
+                NotificationHistory notification = NotificationHistory.builder()
+                        .userId(post.getUserId())
+                        .opponentId(userId)
+                        .notificationType(NotificationType.Like)
+                        .postId(postId)
+                        .createAt(LocalDateTime.now())
+                        .isRead(false)
+                        .build();
+                notificationHistoryService.saveNotification(notification);
+            }
         } else {
             remove(just);
             postService.dislike(postId);
@@ -73,6 +119,25 @@ public class LikeService extends ServiceImpl<LikeMapper, Like> {
         } else {
             return commentService.getCommentById(Integer.valueOf(id)).getLikeCount();
         }
+    }
+
+    public List<org.roni.ronitrouble.entity.UserInfo> getPostLikers(String postId) {
+        var query = new LambdaQueryWrapper<Like>()
+                .eq(Like::getPostId, postId)
+                .eq(Like::getLikeType, LikeType.POST_LIKE);
+        List<Like> likes = list(query);
+        if (likes == null || likes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Integer> userIds = likes.stream()
+                .map(Like::getUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (userIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return userInfoService.listByIds(userIds);
     }
 
 }

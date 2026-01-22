@@ -114,7 +114,9 @@ public class NotificationService {
     }
 
     public enum NotificationType {
-        MessageNotification
+        MessageNotification,
+        CommentNotification,
+        FriendApplyNotification;
     }
 
     @Data

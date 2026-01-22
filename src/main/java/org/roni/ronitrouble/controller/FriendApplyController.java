@@ -47,4 +47,13 @@ public class FriendApplyController {
         return friendApplyService.getApplyAndProfileInfos(userId);
     }
 
+    @Operation(summary = "判断当前登录用户是否已向指定用户发送过好友申请",
+            description = "判断当前登录用户是否已向指定用户发送过好友申请，"
+                    + "如果存在待处理（未读状态）的申请返回true，"
+                    + "如果从未发送过或申请已被拒绝或已通过则返回false")
+    @GetMapping("/hasPending")
+    public boolean hasPendingFriendApply(@RequestParam Integer receiverId, @UserId Integer userId) {
+        return friendApplyService.hasPendingFriendApply(userId, receiverId);
+    }
+
 }
