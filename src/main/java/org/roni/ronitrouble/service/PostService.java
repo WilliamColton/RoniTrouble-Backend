@@ -2,7 +2,6 @@ package org.roni.ronitrouble.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.roni.ronitrouble.component.cache.impl.PostCache;
 import org.roni.ronitrouble.component.store.vectorStore.impl.PostStore;

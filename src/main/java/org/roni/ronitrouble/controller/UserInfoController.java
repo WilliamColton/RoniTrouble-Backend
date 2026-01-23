@@ -14,7 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/userInfo")
 @RequiredArgsConstructor
-public class UserInfoController {
+public class
+
+UserInfoController {
     private final UserInfoService userInfoService;
 
     @Operation(summary = "通过用户 id 查找信息")
