@@ -37,13 +37,6 @@ public class FlowFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // 判断是否为管理员，是则直接放行
-        // if (request.isUserInRole(Role.CLUB_ADMIN.toString())
-        //        || request.isUserInRole(Role.SYSTEM_ADMIN.toString())) {
-        //    filterChain.doFilter(request, response);
-        //    return;
-        //}
-
         long currentTimeStamp = System.currentTimeMillis();
         long timestampBeforeATimeWindow = currentTimeStamp - windowSize * 1000;
         String userId = request.getUserPrincipal() == null ? "" : request.getUserPrincipal().getName();

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.roni.ronitrouble.component.cache.impl.PostCache;
-import org.roni.ronitrouble.component.store.vectorStore.MilvusStore;
 import org.roni.ronitrouble.component.store.vectorStore.impl.PostStore;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.entity.UserInfo;
@@ -17,7 +16,6 @@ import org.roni.ronitrouble.service.PostService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -34,19 +32,29 @@ public class UserProfileSummaryService {
     private final PostCache postCache;
     private final UserInfoMapper userInfoMapper;
 
-    @Scheduled(cron = "*/15 * * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     public void generateUserProfileSummaries() {
+        log.info("开始生成用户画像总结...");
+
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
         List<UserInfo> users = userInfoMapper.selectList(queryWrapper);
+
+        log.info("待处理用户数量: {}", users.size());
+
+        int successCount = 0;
+        int failCount = 0;
 
         for (UserInfo user : users) {
             try {
                 generateSummaryForUser(user.getUserId());
+                successCount++;
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.error("生成用户画像总结失败 userId={}, 错误={}", user.getUserId(), e, e);
+                failCount++;
             }
         }
 
+        log.info("用户画像总结生成完成, 成功={}, 失败={}", successCount, failCount);
     }
 
     private void generateSummaryForUser(Integer userId) throws NoApiKeyException, JsonProcessingException {
@@ -64,13 +72,14 @@ public class UserProfileSummaryService {
 
         List<Double> vector = embeddingService.buildProfileDocumentEmbedding(summary);
 
-        var results = postStore.listSimilarResultsByVector(vector, RECOMMEND_POSTS_LIMIT, 0.35f);
-
-        List<String> similarPostIds = results.stream()
+        List<String> similarPostIds = postStore.listSimilarResultsByVector(vector, RECOMMEND_POSTS_LIMIT)
+                .stream()
                 .map(r -> String.valueOf(r.getId()))
                 .toList();
 
         postCache.saveRecommendPosts(userId, similarPostIds);
+
+        log.info("用户画像处理完成 userId={}, 推荐帖子数={}, summery={}", userId, similarPostIds.size(), summary);
     }
 
     private String buildContentString(List<Post> posts, List<Post> likedPosts) {
