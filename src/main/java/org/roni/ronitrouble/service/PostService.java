@@ -2,7 +2,6 @@ package org.roni.ronitrouble.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.roni.ronitrouble.component.cache.impl.PostCache;
 import org.roni.ronitrouble.component.store.vectorStore.impl.PostStore;
@@ -96,11 +95,10 @@ public class PostService {
         try {
             List<Double> vector = embeddingService.buildDocumentEmbedding(post.getContent());
             postStore.upsert(post.getPostId(), vector);
-            log.info("帖子向量化成功 postId={}", post.getPostId());
         } catch (NoApiKeyException e) {
-            log.error("帖子向量化失败，API Key错误 postId={}", post.getPostId(), e);
+            log.error(e.toString());
         } catch (Exception e) {
-            log.error("帖子向量化失败 postId={}", post.getPostId(), e);
+            log.error(e.toString());
         }
     }
 

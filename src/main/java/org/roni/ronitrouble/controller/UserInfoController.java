@@ -14,7 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/userInfo")
 @RequiredArgsConstructor
-public class UserInfoController {
+public class
+
+UserInfoController {
     private final UserInfoService userInfoService;
 
     @Operation(summary = "通过用户 id 查找信息")
@@ -46,27 +48,27 @@ public class UserInfoController {
     }
 
     @GetMapping("/posts")
-    public List<Post> getUserPosts(@UserId Integer userId) {
+    public List<Post> getUserPosts(@RequestParam Integer userId) {
         return userInfoService.getUserPosts(userId);
     }
 
     @GetMapping("/comments")
-    public List<Comment> getUserComments(@UserId Integer userId) {
+    public List<Comment> getUserComments(@RequestParam Integer userId) {
         return userInfoService.getUserComments(userId);
     }
 
     @GetMapping("/likedPosts")
-    public List<Post> getUserLikedPosts(@UserId Integer userId) {
+    public List<Post> getUserLikedPosts(@RequestParam Integer userId) {
         return userInfoService.getUserLikedPosts(userId);
     }
 
     @GetMapping("/postCount")
-    public Integer getUserPostCount(@UserId Integer userId) {
+    public Integer getUserPostCount(@RequestParam Integer userId) {
         return userInfoService.getUserPostCount(userId);
     }
 
     @GetMapping("/likeCount")
-    public Integer getUserLikeCount(@UserId Integer userId) {
+    public Integer getUserLikeCount(@RequestParam Integer userId) {
         return userInfoService.getUserLikeCount(userId);
     }
 

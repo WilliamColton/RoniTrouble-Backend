@@ -45,8 +45,6 @@ public class UserInfoService extends ServiceImpl<UserInfoMapper, UserInfo> {
         String location = locationService.getLocationByUserId(userId);
         if (location != null && !location.isBlank()) {
             userInfo.setLocation(location);
-        }else{
-            userInfo.setLocation("湖北省");
         }
         return userInfo;
     }

@@ -21,4 +21,5 @@ public class UserInfo {
     private Integer postCount;
     private Integer beLikedCount;
     private Integer likesFavoritesCount;
+
 }

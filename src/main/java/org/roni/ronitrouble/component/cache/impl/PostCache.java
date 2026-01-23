@@ -22,8 +22,11 @@ public class PostCache extends StringCache {
 
     public List<String> getRecommendPosts(Integer userId) throws JsonProcessingException {
         String value = getValue(String.valueOf(userId));
-        return objectMapper.readValue(value, new TypeReference<List<String>>() {
-        });
+        try {
+            return objectMapper.readValue(value, new TypeReference<List<String>>() {});
+        } catch (RuntimeException e) {
+            return List.of();
+        }
     }
 
 }

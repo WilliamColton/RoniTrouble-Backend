@@ -19,6 +19,7 @@ import java.util.Objects;
 public class AIService {
 
     private final AgentFactory agentFactory;
+    private final ToolService toolService;
 
     public String generateProfileQuery(String input) {
         ReActAgent agent = agentFactory.buildReActAgent("""
@@ -49,7 +50,7 @@ public class AIService {
 
     public Flux<String> chat(String input, Integer userId) {
         Session session = new JsonSession();
-        ReActAgent agent = agentFactory.buildReActAgent("你的名字是肉包包，你是一个 AI 聊天助手！请不要使用markdown语法！");
+        ReActAgent agent = agentFactory.buildReActAgentWithTool("你的名字是肉包包，你是一个 AI 聊天助手！禁止使用markdown语法，输出纯文本格式!!！尤其是禁止使用**加粗！！禁止使用*！！！！！", toolService);
 
         agent.loadIfExists(session, String.valueOf(userId));
         Msg msg = Msg.builder()

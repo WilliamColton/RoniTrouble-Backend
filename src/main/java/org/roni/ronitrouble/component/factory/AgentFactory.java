@@ -16,6 +16,15 @@ public class AgentFactory {
     private final ToolService toolService;
 
     public ReActAgent buildReActAgent(String systemPrompt) {
+        return ReActAgent.builder()
+                .name("肉包包智能助手")
+                .model(openAIChatModel)
+                .sysPrompt(systemPrompt)
+                .memory(new InMemoryMemory())
+                .build();
+    }
+
+    public ReActAgent buildReActAgentWithTool(String systemPrompt,Object tool) {
         var toolKit = new Toolkit();
         toolKit.registerTool(toolService);
         return ReActAgent.builder()

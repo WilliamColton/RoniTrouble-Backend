@@ -9,6 +9,7 @@ import io.milvus.v2.service.vector.request.UpsertReq;
 import io.milvus.v2.service.vector.request.data.FloatVec;
 import io.milvus.v2.service.vector.response.SearchResp;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.roni.ronitrouble.util.ParameterizedTypeRef;
 import org.roni.ronitrouble.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,21 @@ public abstract class MilvusStore<T, ID> {
         milvusClientV2.delete(deleteReq);
     }
 
+    public List<SimilarResult<ID>> listSimilarResultsByVector(List<Double> vector, Integer limit, Float scoreLimit) {
+        SearchReq searchReq = SearchReq.builder()
+                .collectionName(collectionName)
+                .data(List.of(new FloatVec(vector.stream().map(Double::floatValue).toList())))
+                .annsField("vector")
+                .metricType(IndexParam.MetricType.COSINE)
+                .limit(limit)
+                .build();
+        return milvusClientV2.search(searchReq).getSearchResults().getFirst().stream()
+                .filter(searchResult ->
+                        searchResult.getScore() >= scoreLimit)
+                .map(this::toSimilarResult)
+                .toList();
+    }
+
     public List<SimilarResult<ID>> listSimilarResultsByVector(List<Double> vector, Integer limit) {
         SearchReq searchReq = SearchReq.builder()
                 .collectionName(collectionName)
@@ -83,11 +99,15 @@ public abstract class MilvusStore<T, ID> {
     }
 
     @Getter
-    public static class SimilarResult<ID> {
+    public static class SimilarResult<ID> implements Comparable<SimilarResult<ID>> {
 
         private Float score;
         private ID id;
 
+        @Override
+        public int compareTo(@NotNull SimilarResult<ID> o) {
+            return Double.compare(this.score, o.getScore());
+        }
     }
 
 }

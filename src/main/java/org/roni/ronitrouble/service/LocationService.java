@@ -16,7 +16,7 @@ public class LocationService {
     public String getLocationByUserId(Integer userId) {
         String ip = iPCache.getIP(userId);
         if (ip == null || ip.isBlank()) {
-            return null;
+            return "";
         }
         return RegionSearcher.getRegion(ip).getProvince();
     }
