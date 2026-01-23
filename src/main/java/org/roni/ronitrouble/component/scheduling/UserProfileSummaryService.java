@@ -32,7 +32,7 @@ public class UserProfileSummaryService {
     private final PostCache postCache;
     private final UserInfoMapper userInfoMapper;
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     public void generateUserProfileSummaries() {
         log.info("开始生成用户画像总结...");
 

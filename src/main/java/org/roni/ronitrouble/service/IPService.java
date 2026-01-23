@@ -10,10 +10,6 @@ public class IPService {
 
     private final IPCache ipCache;
 
-    public String getIP(Integer userId) {
-        return ipCache.getIP(userId);
-    }
-
     public void uploadIP(String ip, Integer userId) {
         ipCache.setIP(ip, userId);
     }
