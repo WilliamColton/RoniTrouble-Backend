@@ -12,6 +12,7 @@ import org.roni.ronitrouble.entity.Like;
 import org.roni.ronitrouble.entity.Post;
 import org.roni.ronitrouble.entity.UserInfo;
 import org.roni.ronitrouble.enums.LikeType;
+import org.roni.ronitrouble.enums.PostType;
 import org.roni.ronitrouble.mapper.LikeMapper;
 import org.roni.ronitrouble.util.MapperUtil;
 import org.springframework.context.annotation.Lazy;
@@ -42,9 +43,9 @@ public class PostService {
     private final UserInfoService userInfoService;
 
     public PostService(LocationService locationService, MongoTemplate mongoTemplate,
-            LikeMapper likeMapper, PostCache postCache,
-            EmbeddingService embeddingService, PostStore postStore,
-            @Lazy UserInfoService userInfoService) {
+                       LikeMapper likeMapper, PostCache postCache,
+                       EmbeddingService embeddingService, PostStore postStore,
+                       @Lazy UserInfoService userInfoService) {
         this.locationService = locationService;
         this.mongoTemplate = mongoTemplate;
         this.likeMapper = likeMapper;
@@ -56,8 +57,8 @@ public class PostService {
 
     public void like(String postId) {
         mongoTemplate.updateFirst(Query.query(Criteria
-                .where("postId")
-                .is(postId)),
+                        .where("postId")
+                        .is(postId)),
                 new Update().inc("likeCount", 1), Post.class);
     }
 
@@ -128,6 +129,13 @@ public class PostService {
     public List<Post> getPostsByPage(Integer from, Integer pageSize) {
         Query query = new Query().skip((long) from).limit(pageSize);
         return mongoTemplate.find(query, Post.class);
+    }
+
+    public List<Post> getPostsByPageAndPostType(PostType postType, Integer from, Integer pageSize) {
+        Query query = new Query(Criteria.where("postType").is(postType)).skip((long) from).limit(pageSize);
+        var posts = mongoTemplate.find(query, Post.class);
+        log.info(posts.toString());
+        return posts;
     }
 
     public List<Post> searchPosts(org.roni.ronitrouble.dto.post.req.SearchPostReq req) {
